@@ -1,13 +1,14 @@
 config: 
-  target: https://http.cat/
+  target: "https://xeno-canto.org/"
   phases:
-    - duration: 60
-      arrivalRate: 5
+    - duration: 1
+      arrivalRate: 1
       name: Load test
   payload:
-    path: "data.csv"
+    path: "payload.csv"
     fields:
-      - "data"
+       - "username"
+       - "password"
   defaults:
     headers:
       Content-Type: "application/json"
@@ -18,7 +19,7 @@ config:
       - http.response_time.p95: 1000
     conditions:
       - expression: vusers.failed == 0
-      - expression: "http.request_rate >= 2 and http.response_time.max < 600"
+      - expression: "http.request_rate >= 2 and http.response_time.max < 200"
 scenarios:
   - name: Getting a resource
     flow:
@@ -27,13 +28,15 @@ scenarios:
       - post:
           url: "{{ target }}post"
           json:
-            username: "test User"
+            username: "Test User"
             password: "Temp Password"
           capture: 
             - json: "$.json"
               as: "request_body"
             - json: "$.headers.Host"
               as: "host"
+      - log: "Json value from response is: {{request_body}}"
+      - log: "Host value from response is: {{host}}"
 ensure:
   p95: 500 
   max: 1000 
