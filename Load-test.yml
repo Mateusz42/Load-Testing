@@ -1,43 +1,30 @@
-config: 
-  target: "https://xeno-canto.org/"
+config:
+  target: 'https://postman-echo.com/' 
   phases:
-    - duration: 1
-      arrivalRate: 1
-      name: Load test
+    - duration: 60 
+      arrivalRate: 5 
+      name: "Test obciążeniowy"
   payload:
-    path: "payload.csv"
+    path: "payload.csv" 
     fields:
-       - "username"
-       - "password"
+      - "field1"
+      - "field2"
   defaults:
     headers:
-      Content-Type: "application/json"
-  plugins:
-    ensure: {}    
-  ensure:
-    thresholds:
-      - http.response_time.p95: 1000
-    conditions:
-      - expression: vusers.failed == 0
-      - expression: "http.request_rate >= 2 and http.response_time.max < 200"
+      Content-Type: "application/json" 
+
 scenarios:
-  - name: Getting a resource
-    flow:
+  - flow:
       - get:
-          url: "{{ target }}get"
+          url: "{{ target }}get" 
       - post:
-          url: "{{ target }}post"
+          url: "{{ target }}post" 
           json:
-            username: "Test User"
-            password: "Temp Password"
-          capture: 
-            - json: "$.json"
-              as: "request_body"
-            - json: "$.headers.Host"
-              as: "host"
-      - log: "Json value from response is: {{request_body}}"
-      - log: "Host value from response is: {{host}}"
+            field1: "{{ field1 }}"
+            field2: "{{ field2 }}"
+
 ensure:
-  p95: 500 
-  max: 1000 
-  min: 200
+  thresholds:
+    http.response_time.p95: 500 
+    http.response_time.max: 1000 
+    vusers.failed: 0 
